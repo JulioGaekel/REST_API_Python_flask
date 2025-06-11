@@ -1,6 +1,16 @@
 from flask import Flask, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, Integer, String, Float
+import os
+
 
 app = Flask(__name__)
+# Configure where the database file will be. By creating the basedir variable and using the os library, the location has been set to the same location as the app.py file (current project).
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Set up configuration manager included in flask. Config key has to match 'SQLALCHEMY_DATABASE_URI'
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "planets.db")
+
 
 @app.route('/')
 def hello_world():
