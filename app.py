@@ -8,15 +8,18 @@ def hello_world():
 
 @app.route('/super_simple')
 def super_simple():
-    return jsonify(message='Hello from the planetary API.')
+    return jsonify(message='Hello from the planetary API.'), 200
 
+@app.route("/not_found")
+def not_found():
+    return jsonify(message = "The resource you are trying to reach was not found."), 404
 
 @app.route("/parameters")
 def parameters():
     name = request.args.get("name")
     age = int(request.args.get("age"))
     if age <= 18:
-        return jsonify(message = "Sorry " + name + ", you are not old enough")
+        return jsonify(message = "Sorry " + name + ", you are not old enough"), 401
 
 if __name__ == '__main__':
     app.run()
