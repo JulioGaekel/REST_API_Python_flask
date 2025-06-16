@@ -2,7 +2,8 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, Float
 import os
-
+from flask_marshmallow import Marshmallow
+from marshmallow import fields
 
 app = Flask(__name__)
 # Configure where the database file will be. By creating the basedir variable and using the os library, the location has been set to the same location as the app.py file (current project).
@@ -13,6 +14,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "pl
 
 # Initialize the database, this must be done before actually using it.
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 # Create a command using a decorator to create the database.
 @app.cli.command("db_create")
@@ -93,6 +95,14 @@ def url_variables(name: str, age: int):
         return jsonify(message="Welcome " + name + ", you are old enough."), 200
 
 
+@app.route("/planets", methods=["GET"])
+def planets():
+    planets_list = Planet.query.all()
+    result = planets_schema.dump(planets_list)
+    return jsonify(result)
+
+
+
 # DATABASE MODELS
 class User(db.Model):
     __tablename__ = "users"
@@ -111,6 +121,28 @@ class Planet(db.Model):
     mass = Column(Float)
     radius = Column(Float)
     distance = Column(Float)
+
+class UserSchema(ma.Schema):
+    id = fields.Int()
+    first_name = fields.Str()
+    last_name = fields.Str()
+    email = fields.Email()
+    password = fields.Str()
+
+class PlanetSchema(ma.Schema):
+    planet_id = fields.Int()
+    planet_name = fields.Str()
+    plant_type = fields.Str()
+    home_star = fields.Str()
+    mass = fields.Float()
+    radius = fields.Float()
+    distance = fields.Float()
+
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+
+planet_schema = PlanetSchema()
+planets_schema = PlanetSchema(many=True)
 
 
 if __name__ == '__main__':
