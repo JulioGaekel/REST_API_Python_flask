@@ -5,6 +5,8 @@ import os
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
 
+
+# ------------------------------------------ APP CONFIG SETUP -----------------------------------------
 app = Flask(__name__)
 # Configure where the database file will be. By creating the basedir variable and using the os library, the location has been set to the same location as the app.py file (current project).
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -15,6 +17,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "pl
 # Initialize the database, this must be done before actually using it.
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+# ---------------------------------------- END APP CONFIG SETUP ----------------------------------------
+
 
 # Create a command using a decorator to create the database.
 @app.cli.command("db_create")
@@ -65,6 +70,7 @@ def db_seed():
     db.session.commit()
     print("Database seeded.")
 
+# ---------------------------------------------- ROUTES --------------------------------------------
 @app.route('/')
 def hello_world():
     return 'Hello World!'
@@ -114,12 +120,14 @@ def register():
         last_name = request.form["last_name"]
         password = request.form["password"]
 
-        user = User(first_name=first_name, last_name=last_name, password=password)
+        user = User(first_name=first_name, last_name=last_name, email=email, password=password)
         db.session.add(user)
         db.session.commit()
         return jsonify(message="User created successfully"), 201
+# ---------------------------------------------- END ROUTES --------------------------------------------
 
-# DATABASE MODELS
+
+# ------------------------------------------- DATABASE MODELS ------------------------------------------
 class User(db.Model):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
