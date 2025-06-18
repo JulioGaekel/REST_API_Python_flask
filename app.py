@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, Float
 import os
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 
 
 # ------------------------------------------ APP CONFIG SETUP -----------------------------------------
@@ -14,9 +15,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 # Set up configuration manager included in flask. Config key has to match 'SQLALCHEMY_DATABASE_URI'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "planets.db")
 
+# Config User Authentication
+app.config["JWT_SECRET_KEY"] = "super-secret" # change this IRL
+
 # Initialize the database, this must be done before actually using it.
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+jwt = JWTManager(app)
 
 # ---------------------------------------- END APP CONFIG SETUP ----------------------------------------
 
@@ -124,6 +129,13 @@ def register():
         db.session.add(user)
         db.session.commit()
         return jsonify(message="User created successfully"), 201
+
+@app.route("/login", methods=["POST"])
+def login():
+    if request.is_json:
+        email = request.json["email"]
+
+
 # ---------------------------------------------- END ROUTES --------------------------------------------
 
 
